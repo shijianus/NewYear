@@ -1,8 +1,8 @@
 # New Year Celebration 🎆
 
-一个自动更新的新年庆祝网站,从2024年的第一个项目发展为现代化的2026年庆祝页面。
+> 一个自动更新的新年庆祝网站，从2024年的第一个项目发展为现代化的庆祝页面。
 
-A self-updating New Year celebration website, evolved from my first project in 2024 to a modern 2026 celebration page.
+A self-updating New Year celebration website, evolved from my first project in 2024 to a modern celebration page.
 
 ## ✨ Features
 
@@ -14,8 +14,8 @@ A self-updating New Year celebration website, evolved from my first project in 2
 
 ## 🚀 Live Demo
 
-部署在 Cloudflare Pages 上:
-[查看线上版本](https://newyear.pages.dev) (需要手动更新)
+- **主页**: https://newyear-d1x.pages.dev/
+- **2024原始版**: https://newyear-d1x.pages.dev/old/
 
 ## 📁 Project Structure
 
@@ -24,12 +24,14 @@ NewYear/
 ├── index.html          # 2026年新版主页 (自动更新年份)
 ├── old/                # 2024年原始版本 (彩蛋)
 │   ├── index.html      # 原始的2024龙年庆祝页面
+│   ├── README.md       # 原始项目的README
+│   ├── README.en.md    # 原始项目的英文README
 │   ├── js/             # 原始JavaScript文件
 │   ├── media/          # 音频文件
 │   └── img/            # 图片资源
 ├── js/                 # 烟花效果脚本
 ├── LICENSE             # 木兰宽松许可证 v2
-└── README.md           # 项目说明
+└── README.md           # 本文档
 ```
 
 ## 🎯 How It Works
@@ -44,6 +46,7 @@ NewYear/
 - 保留了你2024年的第一个项目代码
 - 包含2024龙年的所有原始祝福语和功能
 - 作为纪念和回忆保存
+- 展示从零开始的学习历程
 
 ## 🛠️ Development
 

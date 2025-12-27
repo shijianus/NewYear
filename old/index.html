@@ -1,5 +1,8 @@
 <!DOCTYPE html><!-- This web page is copied by "https://bazhan.wang" --><!-- This web page is copied by "https://bazhan.wang" --><html lang="en"><head><meta name="360-analysis-id" content="302u1c2z312u2q"><!--!‭‪‪‬‏‪‫‬‪‬‏‏‭‪‫‬‏‪‬‎‬--><meta charset="utf-8"><!--!‭‪‪‬‏‪‫‬‪‬‏‏‭‪‫‬‏‪‬‎‬--><meta name="360-analysis-id" content="2y352v1d1h361c2v"><!--!‭‪‪‬‏‪‫‬‪‬‏‏‭‪‫‬‏‪‬‎‬--><!--!‬‏‎‭‪‏‬‏‫‫‬‫‫‬‏‭‫‪‫‬‪‬‏‫--><!--!‬‏‎‭‪‏‬‏‫‫‬‫‫‬‏‭‫‪‫‬‪‬‏‫-->
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+
     <title>新春祝福之再次与你同行暨刘博文2024高考打气程序</title>
 
     <div class="box">本程序制作人：刘博文（反馈邮箱：2609873788@qq.com），程序支持团队：龙腾家庭</div>
@@ -562,10 +565,10 @@
     <!-- clickMusic() -->
     <img id="music_ico" onclick="" alt="" style=" display: inline; float: right;  ">
 
-    <audio id="audioDom" src="media/7170534431801838367.mp3" preload="auto" loop="loop"></audio>
+    <audio id="audioDom" src="media/music.mp3" preload="auto" loop="loop"></audio>
     <div id="wish_text"></div>
 
-    <div id="yhBtn" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff ; font-size:15px">
+    <div id="yhBtn" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff ; font-size:15px;cursor:pointer;transition:opacity 0.3s ease;-webkit-tap-highlight-color:transparent;">
         <p>接收祝福💥   与你同行</p>
         <img style="width:64px;margin-bottom:24px " src="img/060990dac854444ab7a927b5b3311fe4~tplv-tt-shrink_640_0.png">
 
@@ -1109,35 +1112,78 @@
         function musicPlay(isPlay) {
             var media = document.querySelector('#audioDom');
             if (isPlay && media.paused) {
-                media.play();
+                media.play().catch(function(error) {
+                    console.log('Audio play failed:', error);
+                    // 重试一次
+                    setTimeout(function() {
+                        media.play().catch(function(e) {
+                            console.log('Audio play retry failed:', e);
+                        });
+                    }, 100);
+                });
             }
             if (!isPlay && !media.paused) {
                 media.pause();
             }
         }
-        function musicInBrowserHandler() {
-            setTimeout(function () {
-                musicPlay(true)
-            }, 0)
-        }
-        document.body.addEventListener('touchstart', musicInBrowserHandler);
-        document.body.addEventListener('click', musicInBrowserHandler);
-        $('#yhBtn').click(e => {
-            $('#yhBtn').hide()
+
+        // 移除全局事件监听器，避免与按钮点击冲突
+
+        let hasStarted = false; // 标记是否已经启动
+
+        function startCelebration(e) {
+            e.preventDefault();
+            e.stopPropagation(); // 防止事件冒泡
+            if (hasStarted) return; // 防止重复点击
+            hasStarted = true;
+
+            console.log('Starting celebration...');
+
+            // 使用淡出效果隐藏按钮
+            $('#yhBtn').css('opacity', '0');
             setTimeout(() => {
-                start()
-                fireworks();
-            }, 5000) // 这里的1000 是5s指烟花延时时间
+                $('#yhBtn').hide();
+            }, 300);
+
+            // 立即开始播放音乐（使用Promise确保播放成功）
             setTimeout(() => {
-                function audioAutoPlay() {
-                    var audio = document.getElementById('audioDom');
-                    audio.play();
+                const audio = document.getElementById('audioDom');
+                if (audio) {
+                    // 重置音频到开始位置
+                    audio.currentTime = 0;
+                    audio.play().then(() => {
+                        console.log('✓ Audio playing successfully');
+                    }).catch(function(error) {
+                        console.log('✗ Audio play failed:', error);
+                        // 如果失败，提供用户反馈
+                        alert('请点击屏幕任意位置播放音乐');
+                        // 尝试在下次点击时重试
+                        document.body.addEventListener('click', function playOnClick() {
+                            audio.play().catch(e => console.log('Retry failed:', e));
+                            document.body.removeEventListener('click', playOnClick);
+                        }, { once: true });
+                    });
                 }
-                audioAutoPlay();
                 wishFun();
-            }, 2000) // 这里的1000 是5s指音乐延时时间
+            }, 500)
+
+            // 延迟启动烟花效果
+            setTimeout(() => {
+                console.log('Starting fireworks...');
+                try {
+                    start();
+                    fireworks();
+                    console.log('✓ Fireworks started');
+                } catch(err) {
+                    console.log('✗ Fireworks error:', err);
+                }
+            }, 2000)
+
             console.log(updateConfig({ autoLaunch: true }));
-        })
+        }
+
+        // 同时支持点击和触摸事件
+        $('#yhBtn').on('click touchstart', startCelebration);
         function fireworks() {
             $('.page_one').addClass('hide');
             $('.page_two').removeClass('hide');

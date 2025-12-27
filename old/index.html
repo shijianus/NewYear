@@ -565,24 +565,23 @@
     <audio id="audioDom" src="media/music.mp3" preload="auto" loop="loop"></audio>
     <div id="wish_text"></div>
 
-    <!-- 介绍文本区域 - 屏幕中央 -->
-    <div id="introText" style="position:fixed;top:50%;left:50%;transform:translate(-50%, -50%);z-index:998;text-align:center;color:#fff;padding:20px;max-width:800px;">
-        <div style="font-size:16px;line-height:1.8;margin-bottom:15px;">
-            <p style="margin-bottom:10px;"><strong>✨ 这是我的第一个开源项目</strong></p>
-            <p style="font-size:14px;opacity:0.9;">时光荏苒，从2024年的青涩尝试，到如今的持续迭代</p>
-            <p style="font-size:14px;opacity:0.9;">这段代码见证了一个编程爱好者的成长历程</p>
-        </div>
-        <div style="font-size:12px;opacity:0.7;border-top:1px solid rgba(255,255,255,0.2);padding-top:10px;margin-top:10px;">
-            <p>本程序制作人：刘博文（反馈邮箱：2609873788@qq.com）</p>
-            <p>程序支持团队：龙腾家庭</p>
-            <p style="margin-top:5px;opacity:0.8;">在2024新春送上我的祝福：祝你新春快乐，再次与你同行！青春贺岁，龙年大吉！万事兴龙、欣欣向龙、其乐龙龙！</p>
-        </div>
-    </div>
-
     <div id="yhBtn" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff ; font-size:15px;cursor:pointer;transition:opacity 0.3s ease;-webkit-tap-highlight-color:transparent;">
-        <p>接收祝福💥   与你同行</p>
         <img style="width:64px;margin-bottom:24px " src="img/060990dac854444ab7a927b5b3311fe4~tplv-tt-shrink_640_0.png">
+        <p>接收祝福💥   与你同行</p>
 
+        <!-- 介绍文本区域 - 图标下方 -->
+        <div id="introText" style="margin-top:40px;text-align:center;color:#fff;padding:20px;max-width:600px;">
+            <div style="font-size:14px;line-height:1.6;margin-bottom:12px;">
+                <p style="margin-bottom:8px;"><strong>✨ 这是我的第一个开源项目</strong></p>
+                <p style="font-size:12px;opacity:0.9;">时光荏苒，从2024年的青涩尝试，到如今的持续迭代</p>
+                <p style="font-size:12px;opacity:0.9;">这段代码见证了一个编程爱好者的成长历程</p>
+            </div>
+            <div style="font-size:11px;opacity:0.6;border-top:1px solid rgba(255,255,255,0.15);padding-top:8px;margin-top:8px;">
+                <p>本程序制作人：刘博文（反馈邮箱：2609873788@qq.com）</p>
+                <p>程序支持团队：龙腾家庭</p>
+                <p style="margin-top:4px;opacity:0.7;">在2024新春送上我的祝福：祝你新春快乐，再次与你同行！青春贺岁，龙年大吉！</p>
+            </div>
+        </div>
     </div>
 
     <div style="height: 0; width: 0; position: absolute; visibility: hidden;">
@@ -1150,46 +1149,39 @@
 
             console.log('Starting celebration...');
 
-            // 立即隐藏介绍文本和按钮
-            $('#introText').css('opacity', '0');
-            $('#yhBtn').css('opacity', '0');
+            // 立即隐藏介绍文本和按钮（使用CSS直接隐藏）
+            $('#introText').hide();
+            $('#yhBtn').hide();
 
-            setTimeout(() => {
-                $('#introText').hide();
-                $('#yhBtn').hide();
-            }, 300);
+            // 立即开始播放音乐和烟花（无延迟）
+            const audio = document.getElementById('audioDom');
+            if (audio) {
+                // 重置音频到开始位置
+                audio.currentTime = 0;
+                audio.play().then(() => {
+                    console.log('✓ Audio playing successfully');
+                }).catch(function(error) {
+                    console.log('✗ Audio play failed:', error);
+                    // 如果失败，提供用户反馈
+                    alert('请点击屏幕任意位置播放音乐');
+                    // 尝试在下次点击时重试
+                    document.body.addEventListener('click', function playOnClick() {
+                        audio.play().catch(e => console.log('Retry failed:', e));
+                        document.body.removeEventListener('click', playOnClick);
+                    }, { once: true });
+                });
+            }
+            wishFun();
 
-            // 立即开始播放音乐和烟花（几乎同时启动）
-            setTimeout(() => {
-                const audio = document.getElementById('audioDom');
-                if (audio) {
-                    // 重置音频到开始位置
-                    audio.currentTime = 0;
-                    audio.play().then(() => {
-                        console.log('✓ Audio playing successfully');
-                    }).catch(function(error) {
-                        console.log('✗ Audio play failed:', error);
-                        // 如果失败，提供用户反馈
-                        alert('请点击屏幕任意位置播放音乐');
-                        // 尝试在下次点击时重试
-                        document.body.addEventListener('click', function playOnClick() {
-                            audio.play().catch(e => console.log('Retry failed:', e));
-                            document.body.removeEventListener('click', playOnClick);
-                        }, { once: true });
-                    });
-                }
-                wishFun();
-
-                // 立即启动烟花效果
-                console.log('Starting fireworks...');
-                try {
-                    start();
-                    fireworks();
-                    console.log('✓ Fireworks started');
-                } catch(err) {
-                    console.log('✗ Fireworks error:', err);
-                }
-            }, 300) // 300ms后同时启动音乐和烟花
+            // 立即启动烟花效果
+            console.log('Starting fireworks...');
+            try {
+                start();
+                fireworks();
+                console.log('✓ Fireworks started');
+            } catch(err) {
+                console.log('✗ Fireworks error:', err);
+            }
 
             console.log(updateConfig({ autoLaunch: true }));
         }

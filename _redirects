@@ -1,0 +1,5 @@
+# 默认路由 - index.html 是主页
+/ /index.html 200
+
+# 如果将来有 SPA 路由需求，可以添加：
+# /* /index.html 200

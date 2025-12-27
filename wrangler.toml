@@ -1,0 +1,20 @@
+# Cloudflare Pages/Publishers 配置
+# 这个文件是可选的，但可以帮助配置项目
+
+name = "newyear-2026"
+type = "javascript"
+account_id = "" # 如果使用 wrangler CLI 部署，填入你的账户 ID
+
+[build]
+command = "echo 'No build step required'"
+
+[build.upload]
+format = "modules"
+main = "./index.html"
+
+# 环境变量
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.preview]
+vars = { ENVIRONMENT = "preview" }

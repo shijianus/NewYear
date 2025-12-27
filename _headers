@@ -1,0 +1,34 @@
+# 默认 headers - 应用于所有路径
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# JavaScript 模块 - 确保正确的 MIME 类型
+/assets/js/*.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: public, max-age=31536000, immutable
+
+# 音频文件
+/assets/audio/*.mp3
+  Content-Type: audio/mpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+# 图片文件
+/assets/images/*.jpg
+  Content-Type: image/jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/images/*.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML 文件
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# 字体文件（如果添加）
+/assets/fonts/*.*
+  Content-Type: font/woff2
+  Cache-Control: public, max-age=31536000, immutable

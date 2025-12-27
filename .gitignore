@@ -19,3 +19,14 @@ npm-debug.log*
 # Claude Code
 .claude/
 
+# Backup files
+*.bak
+*.backup
+*.old
+index.old.backup.html
+
+# Deployment scripts (optional to keep in repo)
+# check-project.sh
+# deploy-simple.sh
+# start.sh
+

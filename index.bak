@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026新年快乐 - Happy New Year</title>
+    <link rel="shortcut icon" type="image/jpeg" href="img/shijianus.jpg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            overflow: hidden;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .year-display {
+            font-size: 15vw;
+            font-weight: bold;
+            text-align: center;
+            animation: fadeInScale 2s ease-out;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .greeting {
+            font-size: 3vw;
+            text-align: center;
+            animation: slideUp 1.5s ease-out;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .countdown {
+            font-size: 2.5vw;
+            margin-top: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        .fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .easter-egg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+
+        .easter-egg:hover {
+            opacity: 1;
+        }
+
+        .easter-egg a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideUp {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Firework styles from original */
+        .stage-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .canvas-container canvas {
+            position: absolute;
+            mix-blend-mode: lighten;
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="stage-container">
+        <div class="canvas-container">
+            <canvas id="trails-canvas"></canvas>
+            <canvas id="main-canvas"></canvas>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="year-display" id="yearDisplay">2026</div>
+        <div class="greeting" id="greeting">新年快乐 · 愿你所愿皆成真</div>
+        <div class="countdown" id="countdown"></div>
+    </div>
+
+    <div class="easter-egg">
+        <a href="/old/">✨ 回忆 2024</a>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Auto-update year logic
+        function getCurrentYear() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const day = now.getDate();
+
+            // Show next year if it's late December
+            if (month === 11 && day >= 25) {
+                return year + 1;
+            }
+            return year;
+        }
+
+        function updateDisplay() {
+            const year = getCurrentYear();
+            document.getElementById('yearDisplay').textContent = year;
+
+            // Update greeting based on year
+            const greetings = {
+                2025: '乙巳蛇年 · 灵蛇献瑞',
+                2026: '丙午马年 · 马到成功',
+                2027: '丁未羊年 · 三阳开泰',
+                2028: '戊申猴年 · 金猴献瑞'
+            };
+
+            const greeting = greetings[year] || `${year}新年快乐 · 愿你所愿皆成真`;
+            document.getElementById('greeting').textContent = greeting;
+
+            // Update countdown
+            updateCountdown(year);
+        }
+
+        function updateCountdown(targetYear) {
+            const targetDate = new Date(targetYear, 0, 1);
+            const now = new Date();
+
+            if (now.getFullYear() === targetYear && now.getMonth() === 0 && now.getDate() === 1) {
+                document.getElementById('countdown').innerHTML = '🎉 新年已经到了! 🎉';
+                return;
+            }
+
+            const diff = targetDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdown').innerHTML =
+                `距离 ${targetYear} 年还有：<br>` +
+                `<strong>${days}</strong> 天 ` +
+                `<strong>${hours}</strong> 小时 ` +
+                `<strong>${minutes}</strong> 分钟 ` +
+                `<strong>${seconds}</strong> 秒`;
+        }
+
+        // Create stars background
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialize
+        createStars();
+        updateDisplay();
+        setInterval(updateCountdown, 1000);
+
+        // Auto-enable fireworks
+        setTimeout(() => {
+            if (typeof updateConfig === 'function') {
+                updateConfig({ autoLaunch: true });
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

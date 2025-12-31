@@ -3,7 +3,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
 
-    <title>新春祝福之再次与你同行暨刘博文2026新年祝福程序</title>
+    <title>2026新年烟花盛典 - 跨年祝福</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><!--!‭‪‪‬‏‪‫‬‪‬‏‏‭‪‫‬‏‪‬‎‬--><!--!‬‏‎‭‪‏‬‏‫‫‬‫‫‬‏‭‫‪‫‬‪‬‏‫-->
     <meta name="mobile-web-app-capable" content="yes"><!--!‭‪‪‬‏‪‫‬‪‬‏‏‭‪‫‬‏‪‬‎‬--><!--!‬‏‎‭‪‏‬‏‫‫‬‫‫‬‏‭‫‪‫‬‪‬‏‫-->
@@ -566,22 +566,8 @@
     <div id="wish_text"></div>
 
     <div id="yhBtn" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff ; font-size:15px;cursor:pointer;transition:opacity 0.3s ease;-webkit-tap-highlight-color:transparent;">
-        <p>接收祝福💥   与你同行</p>
+        <p>开启2026✨   共赴新程</p>
         <img style="width:64px;margin-bottom:24px " src="img/firecracker.png">
-
-        <!-- 介绍文本区域 - 最下方 -->
-        <div id="introText" style="margin-top:50px;text-align:center;color:#fff;padding:15px;max-width:500px;">
-            <div style="font-size:13px;line-height:1.6;margin-bottom:10px;">
-                <p style="margin-bottom:6px;"><strong>✨ 这是我的第一个开源项目</strong></p>
-                <p style="font-size:11px;opacity:0.85;">时光荏苒，从2024年的青涩尝试，到如今的持续迭代</p>
-                <p style="font-size:11px;opacity:0.85;">这段代码见证了一个编程爱好者的成长历程</p>
-            </div>
-            <div style="font-size:10px;opacity:0.5;border-top:1px solid rgba(255,255,255,0.1);padding-top:6px;margin-top:6px;">
-                <p>本程序制作人：刘博文（反馈邮箱：2609873788@qq.com）</p>
-                <p>程序支持团队：龙腾家庭</p>
-                <p style="margin-top:3px;opacity:0.6;">在2026新春送上我的祝福：祝你新春快乐，再次与你同行！新年快乐，万事如意！</p>
-            </div>
-        </div>
     </div>
 
     <div style="height: 0; width: 0; position: absolute; visibility: hidden;">
@@ -1087,16 +1073,59 @@
     </script><!--!‭‪‪‬‏‪‫‬‪‬‏‏‭‪‫‬‏‪‬‎‬--><!--!‬‏‎‭‪‏‬‏‫‫‬‫‫‬‏‭‫‪‫‬‪‬‏‫-->
     <script src="js/script.js"></script><!--!‭‪‪‬‏‪‫‬‪‬‏‏‭‪‫‬‏‪‬‎‬--><!--!‬‏‎‭‪‏‬‏‫‫‬‫‫‬‏‭‫‪‫‬‪‬‏‫-->
     <script>
+        // 后台时间记录功能 - UTC+8中国时区
+        (function() {
+            const timeZone = 'Asia/Shanghai';
+            const timeLogger = {
+                logStartTime: function() {
+                    const now = new Date();
+                    const chinaTime = new Date(now.toLocaleString('en-US', { timeZone: timeZone }));
+                    const timeStr = chinaTime.toLocaleString('zh-CN', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    });
+                    console.log('%c🎆 2026新年烟花程序启动', 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
+                    console.log('%c启动时间（UTC+8）: ' + timeStr, 'color: #4ecdc4; font-size: 12px;');
+                    console.log('%c时区: ' + timeZone, 'color: #95e1d3; font-size: 12px;');
+                },
+
+                logInteractTime: function(action) {
+                    const now = new Date();
+                    const chinaTime = new Date(now.toLocaleString('en-US', { timeZone: timeZone }));
+                    const timeStr = chinaTime.toLocaleString('zh-CN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false
+                    });
+                    console.log('%c[' + timeStr + '] ' + action, 'color: #f38181; font-size: 11px;');
+                }
+            };
+
+            // 页面加载时记录时间
+            window.addEventListener('load', function() {
+                timeLogger.logStartTime();
+            });
+
+            // 记录交互时间
+            window.timeLogger = timeLogger;
+        })();
+
         function wishFun() {
             const wish = [
-				 "我的好友",
-                "祝你2026新年快乐",
-				 "Wishing you a happy 2026 New Year！",
-				 "但愿这个冬天爱与好运同在",
-				 "我们终会光芒万丈、愉悦欢腾、齐乐融融",
-                "相信新的一年中能如黑马般冲出重围，驰骋疆场以立下赫赫战功",
-                "黧黑的2025终已过去，黎明就在前方",
-				 "以此祝福本人：相信在2026年新的一年中,万事如意,心想事成"
+                "2026，新年快乐！",
+                "愿你在新的一年里，所求皆如愿，所行皆坦途",
+                "烟火向星辰，所愿皆成真",
+                "愿2026年的每一天，都闪闪发光✨",
+                "跨越2025，奔赴2026，未来可期",
+                "愿你眼里有光，心中有爱，脚下有路",
+                "2026，愿你遇见更好的自己",
+                "愿所有的美好如期而至，愿所有的幸运不期而遇"
             ]
 
             const text = document.getElementById('wish_text');
@@ -1147,10 +1176,14 @@
             if (hasStarted) return; // 防止重复点击
             hasStarted = true;
 
+            // 记录交互时间
+            if (window.timeLogger) {
+                window.timeLogger.logInteractTime('用户启动烟花程序');
+            }
+
             console.log('Starting celebration...');
 
-            // 立即隐藏介绍文本和按钮（使用CSS直接隐藏）
-            $('#introText').hide();
+            // 立即隐藏按钮（使用CSS直接隐藏）
             $('#yhBtn').hide();
 
             // 立即开始播放音乐和烟花（无延迟）
@@ -1159,6 +1192,9 @@
                 // 重置音频到开始位置
                 audio.currentTime = 0;
                 audio.play().then(() => {
+                    if (window.timeLogger) {
+                        window.timeLogger.logInteractTime('背景音乐播放成功');
+                    }
                     console.log('✓ Audio playing successfully');
                 }).catch(function(error) {
                     console.log('✗ Audio play failed:', error);
@@ -1175,9 +1211,15 @@
 
             // 立即启动烟花效果
             console.log('Starting fireworks...');
+            if (window.timeLogger) {
+                window.timeLogger.logInteractTime('烟花效果启动');
+            }
             try {
                 start();
                 fireworks();
+                if (window.timeLogger) {
+                    window.timeLogger.logInteractTime('烟花渲染引擎就绪');
+                }
                 console.log('✓ Fireworks started');
             } catch(err) {
                 console.log('✗ Fireworks error:', err);
@@ -1200,15 +1242,14 @@
         }
         function start() {
             const text = [
-				 '念星空驱散阴霾，尔等朕凯旋归来，宴酒席，渡欢结',
-				 '海压竹枝低复举，风吹山角晦还明！真诚祝愿你2026年新春快乐！',
-				 '愿年年岁岁常康健，岁岁年年常相见；月月圆圆人团圆，美美满满乐人间',
-				 '烟火人间，光阴阑珊，一路向前，一路向阳！愿积续奋斗而佳绩，力挽狂澜而证明',
-				 '愿春风吹满地，好运伴君行；红梅傲雪开，幸福永相随',
-				 '愿星河绚烂，所见即所念；愿梦想成真，所想即所成',
-				 '青春非永远不断的唱片，人生非永葆美丽的容颜，唯当下数落皆续明天',
-                 '愿珍惜当下，为明天而战！\n最后祝愿大家2026新年快乐，万事如意！',
-
+                '2026年，让我们以崭新的姿态迎接新的开始',
+                '告别2025的遗憾，拥抱2026的希望，新年新气象',
+                '愿你在新的一年里，心中有梦，眼中有光，脚下有路',
+                '时光荏苒，岁月如歌，2026我们继续前行',
+                '愿所有的努力都有回报，愿所有的等待都有结果',
+                '2026，愿你成为更好的自己，遇见更美的风景',
+                '烟火璀璨，星河滚烫，2026共赴美好未来',
+                '愿2026年的每一天，都值得期待，充满希望'
             ]
             let str = text.join('<br><br>')
             let str_ = ''

@@ -5,6 +5,7 @@ class ThemeManager {
         this.calculator = calendarCalculator;
         this.currentTheme = null;
         this.themes = THEMES;
+        this.regionalPalette = null;
     }
 
     applyTheme() {
@@ -36,7 +37,7 @@ class ThemeManager {
     }
 
     getRandomFireworkColor() {
-        const colors = this.currentTheme.fireworkColors;
+        const colors = this.regionalPalette || this.currentTheme.fireworkColors;
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
@@ -47,6 +48,12 @@ class ThemeManager {
     hasSpecialEffect(effectName) {
         return this.currentTheme.specialEffects &&
                this.currentTheme.specialEffects.includes(effectName);
+    }
+
+    setRegionalPalette(colors) {
+        if (Array.isArray(colors) && colors.length) {
+            this.regionalPalette = colors;
+        }
     }
 }
 

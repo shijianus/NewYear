@@ -21,26 +21,39 @@ class MainController {
 
         this.countdownInterval = null;
         this.started = false;
+        this.particleCountdownStarted = false;
+        this.finaleTriggered = false;
+        this.locationProfile = null;
     }
 
     async init() {
-        await this.audioManager.init();
-        await this.locationService.detectLocation();
-        this.displayGreeting();
+        try {
+            await this.audioManager.init();
+            await this.locationService.detectLocation();
+        } catch (error) {
+            console.warn('Initialization warning', error);
+        }
+
+        this.locationProfile = this.locationService.getRegionalPreset();
 
         this.themeManager.applyTheme();
+        if (this.locationProfile.palette) {
+            this.themeManager.setRegionalPalette(this.locationProfile.palette);
+        }
 
         this.fireworkEngine = new FireworkEngine(
             this.canvas,
             this.audioManager,
             this.themeManager
         );
+        this.fireworkEngine.setRegionalProfile(this.locationProfile);
 
         this.historyHighlights = new HistoryHighlights(
             this.fireworkEngine.particleSystem,
             this.canvas
         );
 
+        this.displayGreeting();
         this.showWelcomePage();
     }
 
@@ -49,17 +62,22 @@ class MainController {
         welcomeDiv.style.display = 'flex';
 
         const startBtn = document.getElementById('start-button');
-        startBtn.addEventListener('click', () => {
+        const triggerStart = (event) => {
+            event.preventDefault();
             this.start();
-            welcomeDiv.style.display = 'none';
-        });
+            welcomeDiv.classList.add('hide');
+        };
+        startBtn.addEventListener('click', triggerStart, { once: true });
+        startBtn.addEventListener('touchstart', triggerStart, { once: true, passive: false });
     }
 
     start() {
+        if (this.started) return;
         this.audioManager.unlock();
         this.audioManager.playBGM(this.calendarCalc.getCurrentMode());
 
         this.fireworkEngine.animate();
+        this.fireworkEngine.startAutoLaunch(1300);
 
         this.startCountdown();
 
@@ -84,16 +102,11 @@ class MainController {
                 return;
             }
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            if (diff <= 60000 && diff > 59000) {
+            if (diff <= 60000 && !this.particleCountdownStarted) {
                 this.startParticleCountdown();
             }
 
-            if (seconds === 0 && minutes === 0 && hours === 0 && days === 0) {
+            if (diff <= 0 && !this.finaleTriggered) {
                 this.triggerNewYearCelebration();
             }
 
@@ -114,10 +127,18 @@ class MainController {
 
             const display = `${days}天 ${hours}时 ${minutes}分 ${seconds}秒`;
             document.getElementById('countdown-display').textContent = display;
+            const subtitle = document.getElementById('countdown-subtitle');
+            if (subtitle) {
+                const nextMidnight = targetDate.toLocaleString([], { hour12: false, month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+                subtitle.textContent = `以你的本地时间为准，下一次零点是：${nextMidnight}`;
+            }
         }
+
+        return diff;
     }
 
     startParticleCountdown() {
+        this.particleCountdownStarted = true;
         document.getElementById('countdown-display').style.display = 'none';
 
         let seconds = 60;
@@ -125,6 +146,7 @@ class MainController {
         const particleCountdownInterval = setInterval(() => {
             if (seconds <= 0) {
                 clearInterval(particleCountdownInterval);
+                document.getElementById('countdown-display').style.display = 'block';
                 return;
             }
 
@@ -153,8 +175,8 @@ class MainController {
         const imageData = offCanvas.getImageData(0, 0, 200, 200);
         const points = [];
 
-        for (let y = 0; y < 200; y += 3) {
-            for (let x = 0; x < 200; x += 3) {
+        for (let y = 0; y < 200; y += 4) {
+            for (let x = 0; x < 200; x += 4) {
                 const index = (y * 200 + x) * 4;
                 if (imageData.data[index + 3] > 128) {
                     points.push({
@@ -175,6 +197,8 @@ class MainController {
     }
 
     async triggerNewYearCelebration() {
+        if (this.finaleTriggered) return;
+        this.finaleTriggered = true;
         this.audioManager.play('finale_boom', 1.0);
 
         for (let i = 0; i < 20; i++) {
@@ -193,6 +217,29 @@ class MainController {
     displayGreeting() {
         const greeting = this.locationService.getGreetingText();
         document.getElementById('location-greeting').textContent = greeting;
+
+        const wish = document.getElementById('regional-wish');
+        if (wish) wish.textContent = this.locationProfile?.wish || '';
+
+        const message = document.getElementById('regional-message');
+        if (message) message.textContent = this.locationProfile?.message || '';
+
+        const locationLabel = document.getElementById('location-label');
+        if (locationLabel) locationLabel.textContent = this.locationService.getLocationLabel();
+
+        const timezoneLabel = document.getElementById('timezone-display');
+        if (timezoneLabel) {
+            timezoneLabel.textContent = `${this.timeDetector.formatTimeZoneName()} · ${this.timeDetector.getOffsetLabel()}`;
+        }
+
+        const seasonLabel = document.getElementById('mode-label');
+        if (seasonLabel) seasonLabel.textContent = `${this.calendarCalc.getCurrentMode() === 'SOLAR' ? '阳历元旦' : '农历春节'}`;
+
+        const seasonDesc = document.getElementById('mode-desc');
+        if (seasonDesc) seasonDesc.textContent = this.calendarCalc.getSeasonDescription();
+
+        const midnightLabel = document.getElementById('midnight-label');
+        if (midnightLabel) midnightLabel.textContent = `本地零点：${this.timeDetector.getLocalMidnightString()}`;
     }
 }
 

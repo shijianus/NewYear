@@ -4,18 +4,17 @@ class HistoryHighlights {
     constructor(particleSystem, canvas) {
         this.particleSystem = particleSystem;
         this.canvas = canvas;
-        this.ctx = canvas.getContext('2d');
         this.sequence = ['snake', 'ai', 'heart', '2026'];
         this.currentIndex = 0;
         this.isPlaying = false;
     }
 
     async start() {
+        if (this.isPlaying) return;
         this.isPlaying = true;
 
         for (let iconType of this.sequence) {
             await this.displayIcon(iconType);
-            await this.wait(3000);
         }
 
         this.isPlaying = false;
@@ -24,7 +23,14 @@ class HistoryHighlights {
     async displayIcon(type) {
         const points = this.generateIconPoints(type);
         const color = this.getColorForIcon(type);
-        await this.createAttractorParticles(points, color);
+        const particles = this.createShapeParticles(points, color, type);
+        const holdTime = type === '2026' ? 3500 : 2200;
+        await this.wait(holdTime);
+        this.releaseShapeParticles(particles);
+        if (type === '2026') {
+            this.triggerFinaleBurst(color);
+        }
+        await this.wait(800);
     }
 
     generateIconPoints(type) {
@@ -116,45 +122,38 @@ class HistoryHighlights {
         return points;
     }
 
-    async createAttractorParticles(targetPoints, color) {
-        const attractorParticles = targetPoints.map(point => ({
-            current: {
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height
-            },
-            target: point,
-            color: color
-        }));
+    createShapeParticles(points, color, type) {
+        const particles = [];
+        const sizeBoost = type === '2026' ? 3 : 2;
 
-        const duration = 1000;
-        const startTime = Date.now();
+        for (let point of points) {
+            const particle = new Particle(point.x, point.y, color, { x: 0, y: 0 }, 0, 0.98);
+            particle.radius = sizeBoost;
+            particle.decay = 0.004;
+            this.particleSystem.particles.push(particle);
+            particles.push(particle);
+        }
 
-        return new Promise(resolve => {
-            const animate = () => {
-                const elapsed = Date.now() - startTime;
-                const progress = Math.min(elapsed / duration, 1);
+        return particles;
+    }
 
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-                for (let ap of attractorParticles) {
-                    ap.current.x += (ap.target.x - ap.current.x) * 0.1;
-                    ap.current.y += (ap.target.y - ap.current.y) * 0.1;
-
-                    this.ctx.fillStyle = ap.color;
-                    this.ctx.beginPath();
-                    this.ctx.arc(ap.current.x, ap.current.y, 2, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-
-                if (progress < 1) {
-                    requestAnimationFrame(animate);
-                } else {
-                    resolve();
-                }
-            };
-
-            animate();
+    releaseShapeParticles(particles) {
+        particles.forEach(particle => {
+            particle.gravity = 0.18;
+            particle.decay = 0.05;
+            particle.vx = (Math.random() - 0.5) * 6;
+            particle.vy = (Math.random() - 0.5) * 6;
         });
+    }
+
+    triggerFinaleBurst(color) {
+        this.particleSystem.createExplosion(
+            this.canvas.width / 2,
+            this.canvas.height / 2 - 50,
+            color,
+            180,
+            'circle'
+        );
     }
 
     getColorForIcon(type) {

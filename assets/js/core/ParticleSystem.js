@@ -70,6 +70,8 @@ class ParticleSystem {
                 break;
             case 'text':
                 break;
+            case 'shape':
+                break;
         }
 
         this.particles.push(...particles);
@@ -171,5 +173,8 @@ class ParticleSystem {
 
     clear() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.particles = [];
     }
 }
+
+export { ParticleSystem, Particle };

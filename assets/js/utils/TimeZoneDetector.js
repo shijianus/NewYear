@@ -1,18 +1,17 @@
 class TimeZoneDetector {
     constructor() {
         this.timezone = null;
-        this.offset = null;
+        this.offsetMinutes = null;
         this.init();
     }
 
     init() {
         this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        this.offset = new Date().getTimezoneOffset();
+        this.offsetMinutes = new Date().getTimezoneOffset();
     }
 
     getLocalNewYearTime(year) {
-        const targetDate = new Date(year, 0, 1, 0, 0, 0, 0);
-        return targetDate;
+        return new Date(year, 0, 1, 0, 0, 0, 0);
     }
 
     getCountdownToNewYear(year) {
@@ -34,6 +33,15 @@ class TimeZoneDetector {
         };
     }
 
+    getOffsetLabel() {
+        const totalMinutes = -this.offsetMinutes;
+        const sign = totalMinutes >= 0 ? '+' : '-';
+        const absMinutes = Math.abs(totalMinutes);
+        const hours = String(Math.floor(absMinutes / 60)).padStart(2, '0');
+        const minutes = String(absMinutes % 60).padStart(2, '0');
+        return `GMT${sign}${hours}:${minutes}`;
+    }
+
     formatTimeZoneName() {
         const cityMap = {
             'Asia/Shanghai': '上海',
@@ -47,6 +55,17 @@ class TimeZoneDetector {
             'Europe/Paris': '巴黎',
             'Europe/Berlin': '柏林'
         };
-        return cityMap[this.timezone] || this.timezone.split('/')[1] || this.timezone;
+        return cityMap[this.timezone] || (this.timezone ? this.timezone.split('/')[1] : '未知地区');
+    }
+
+    getLocalMidnightString() {
+        const target = this.getLocalNewYearTime(2026);
+        return target.toLocaleString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
     }
 }
+
+export { TimeZoneDetector };

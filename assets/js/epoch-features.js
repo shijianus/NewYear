@@ -49,6 +49,8 @@
             this.canvas = canvas;
             this.ctx = canvas.getContext('2d');
             this.meteors = [];
+            this.starBursts = [];
+            this.starPulseCooldown = 0;
             this.running = false;
             this.resize();
         }
@@ -84,6 +86,7 @@
                 meteor.y += meteor.vy;
                 meteor.opacity -= 0.003;
             });
+            this.updateStarBursts();
         }
 
         createMeteor() {
@@ -97,6 +100,56 @@
                 length: 80 + Math.random() * 40,
                 opacity: 0.5 + Math.random() * 0.4
             };
+        }
+
+        spawnStarPulse() {
+            const radius = Math.min(this.canvas.width, this.canvas.height) * 0.12;
+            const starCount = 18 + Math.floor(Math.random() * 16);
+            const centerX = Math.random() * this.canvas.width;
+            const centerY = Math.random() * this.canvas.height * 0.5;
+            const stars = [];
+
+            for (let i = 0; i < starCount; i++) {
+                const angle = (Math.PI * 2 * i) / starCount;
+                const dist = radius * (0.2 + Math.random() * 0.8);
+                stars.push({
+                    x: centerX + Math.cos(angle) * dist,
+                    y: centerY + Math.sin(angle) * dist * 0.6,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    alpha: 0.5 + Math.random() * 0.4,
+                    size: 1 + Math.random() * 1.2
+                });
+            }
+
+            this.starBursts.push({
+                stars,
+                life: 220,
+                maxLife: 220,
+                opacity: 1
+            });
+        }
+
+        updateStarBursts() {
+            if (this.starPulseCooldown <= 0 && Math.random() < 0.03) {
+                this.spawnStarPulse();
+                this.starPulseCooldown = 240;
+            } else {
+                this.starPulseCooldown = Math.max(0, this.starPulseCooldown - 1);
+            }
+
+            this.starBursts = this.starBursts.filter(burst => burst.life > 0);
+            this.starBursts.forEach(burst => {
+                burst.life -= 2;
+                const ratio = burst.life / burst.maxLife;
+                burst.opacity = Math.max(0, Math.sin(ratio * Math.PI));
+                burst.stars.forEach(star => {
+                    star.x += star.vx;
+                    star.y += star.vy;
+                    star.vx *= 0.98;
+                    star.vy *= 0.98;
+                });
+            });
         }
 
         render() {
@@ -116,6 +169,18 @@
                 this.ctx.moveTo(meteor.x, meteor.y);
                 this.ctx.lineTo(meteor.x - meteor.length, meteor.y - meteor.length * 0.25);
                 this.ctx.stroke();
+            });
+
+            this.starBursts.forEach(burst => {
+                burst.stars.forEach(star => {
+                    this.ctx.save();
+                    this.ctx.globalAlpha = burst.opacity * star.alpha;
+                    this.ctx.fillStyle = '#b6d4ff';
+                    this.ctx.beginPath();
+                    this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.restore();
+                });
             });
         }
     }
@@ -148,6 +213,18 @@
             this.animationRunning = false;
             this.numberTimer = null;
             this.historyPlaying = false;
+            // Auto shapes cycle through zodiac and tech glyphs for the 2026 story line.
+            this.autoShapes = ['snake', 'ai', 'heart', '2026', 'horse', 'constellation'];
+            this.autoShapeIndex = 0;
+            this.shapeScaleMap = {
+                snake: 1.3,
+                ai: 1.25,
+                heart: 1.25,
+                2026: 1.4,
+                horse: 1.25,
+                constellation: 1.35
+            };
+            this.particleSizeRange = { min: 1.2, max: 1.9 };
             this.resize();
         }
 
@@ -241,38 +318,64 @@
             });
         }
 
-        showShape(shape) {
+        playAutoSpecialBurst() {
+            if (this.historyPlaying) return;
+            const shape = this.autoShapes[this.autoShapeIndex % this.autoShapes.length];
+            this.autoShapeIndex++;
+            this.showShape(shape, { holdMs: 1600, releaseDelay: 500 });
+        }
+
+        showShape(shape, options = {}) {
             return new Promise(resolve => {
                 const colorMap = {
                     snake: '#ffd166',
                     ai: '#9c6bff',
                     heart: '#ff5c8d',
-                    2026: '#f7c948'
+                    2026: '#f7c948',
+                    horse: '#ffda7b',
+                    constellation: '#9ad0ff'
                 };
+                const holdMs = options.holdMs ?? (shape === '2026' ? 3200 : 2200);
+                const releaseDelay = options.releaseDelay ?? 400;
+                const scale = this.shapeScaleMap[shape] || 1.1;
                 const points = this.getShapePoints(shape);
+                const baseRadius = Math.min(this.particleSizeRange.max, this.particleSizeRange.min * scale);
                 this.particles = points.map(point => {
                     const particle = new Particle(point.x, point.y, colorMap[shape] || '#fff');
-                    particle.radius = shape === '2026' ? 2.8 : 2.2;
+                    // Keep these particles smaller than the main stage bursts while enlarging the overall glyph.
+                    particle.radius = Math.min(baseRadius, 1.9);
                     particle.decay = 0.006;
-                    particle.vx = (Math.random() - 0.5) * 0.6;
-                    particle.vy = (Math.random() - 0.5) * 0.6;
+                    particle.vx = (Math.random() - 0.5) * 0.4;
+                    particle.vy = (Math.random() - 0.5) * 0.4;
                     return particle;
                 });
-                setTimeout(() => resolve(), shape === '2026' ? 3200 : 2000);
+                setTimeout(() => {
+                    this.releaseCurrentShape();
+                    setTimeout(() => resolve(), releaseDelay);
+                }, holdMs);
+            });
+        }
+
+        releaseCurrentShape() {
+            this.particles.forEach(particle => {
+                particle.vx = (Math.random() - 0.5) * 1.8;
+                particle.vy = (Math.random() - 0.5) * 1.4 - 0.2;
+                particle.decay = 0.01;
             });
         }
 
         getShapePoints(shape) {
             const centerX = this.canvas.width / 2;
             const centerY = this.canvas.height / 2;
+            const scale = this.shapeScaleMap[shape] || 1.1;
 
             if (shape === 'snake') {
                 const points = [];
-                const segments = 220;
-                const amplitude = 90;
+                const segments = 240;
+                const amplitude = 110 * scale;
                 for (let i = 0; i < segments; i++) {
-                    const x = centerX - 280 + (i * 560 / segments);
-                    const y = centerY + Math.sin((i / segments) * Math.PI * 4) * amplitude;
+                    const x = centerX - 300 + (i * 600 / segments);
+                    const y = centerY + Math.sin((i / segments) * Math.PI * 4.5) * amplitude;
                     points.push({ x, y });
                 }
                 return points;
@@ -280,39 +383,89 @@
 
             if (shape === 'heart') {
                 const points = [];
-                const scale = 12;
-                for (let i = 0; i < 200; i++) {
-                    const t = (i / 200) * Math.PI * 2;
+                const heartScale = 12 * scale;
+                for (let i = 0; i < 220; i++) {
+                    const t = (i / 220) * Math.PI * 2;
                     const x = 16 * Math.pow(Math.sin(t), 3);
                     const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
                     points.push({
-                        x: centerX + x * scale,
-                        y: centerY + y * scale
+                        x: centerX + x * heartScale,
+                        y: centerY + y * heartScale
                     });
                 }
                 return points;
             }
 
-            const text = shape === 'ai' ? 'AI' : '2026';
+            if (shape === 'constellation') {
+                const points = [];
+                const total = 280;
+                const maxRadius = Math.min(this.canvas.width, this.canvas.height) * 0.22 * scale;
+                for (let i = 0; i < total; i++) {
+                    const angle = (i / total) * Math.PI * 4;
+                    const radius = (i / total) * maxRadius;
+                    points.push({
+                        x: centerX + Math.cos(angle) * radius,
+                        y: centerY + Math.sin(angle) * radius * 0.65
+                    });
+                }
+                return points;
+            }
+
+            if (shape === 'horse') {
+                return this.sampleTextPoints('馬', {
+                    font: '900 200px \"Microsoft YaHei\", \"Noto Serif SC\", serif',
+                    step: 4,
+                    scale
+                });
+            }
+
+            if (shape === 'ai') {
+                return this.sampleTextPoints('AI', {
+                    font: 'bold 200px \"Russo One\", sans-serif',
+                    step: 4,
+                    scale
+                });
+            }
+
+            if (shape === '2026') {
+                return this.sampleTextPoints('2026', {
+                    font: 'bold 170px \"Russo One\", sans-serif',
+                    step: 4,
+                    scale
+                });
+            }
+
+            return [];
+        }
+
+        sampleTextPoints(text, options = {}) {
+            const width = options.width || 640;
+            const height = options.height || 320;
+            const step = options.step || 5;
+            const scale = options.scale || 1;
+            const font = options.font || 'bold 160px \"Russo One\", sans-serif';
             const offCanvas = document.createElement('canvas');
-            offCanvas.width = 620;
-            offCanvas.height = 260;
+            offCanvas.width = width;
+            offCanvas.height = height;
             const offCtx = offCanvas.getContext('2d');
+            offCtx.clearRect(0, 0, width, height);
             offCtx.fillStyle = '#fff';
-            offCtx.font = shape === 'ai' ? 'bold 180px "Russo One", sans-serif' : 'bold 150px "Russo One", sans-serif';
+            offCtx.font = font;
             offCtx.textAlign = 'center';
             offCtx.textBaseline = 'middle';
-            offCtx.fillText(text, offCanvas.width / 2, offCanvas.height / 2);
-            const data = offCtx.getImageData(0, 0, offCanvas.width, offCanvas.height);
+            offCtx.fillText(text, width / 2, height / 2);
+            const data = offCtx.getImageData(0, 0, width, height);
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height / 2;
             const points = [];
 
-            for (let y = 0; y < offCanvas.height; y += 4) {
-                for (let x = 0; x < offCanvas.width; x += 4) {
-                    const index = (y * offCanvas.width + x) * 4 + 3;
+            for (let y = 0; y < height; y += step) {
+                for (let x = 0; x < width; x += step) {
+                    const index = (y * width + x) * 4 + 3;
                     if (data.data[index] > 128) {
                         points.push({
-                            x: centerX + (x - offCanvas.width / 2),
-                            y: centerY + (y - offCanvas.height / 2)
+                            x: centerX + (x - width / 2) * scale,
+                            y: centerY + (y - height / 2) * scale
                         });
                     }
                 }
@@ -348,9 +501,13 @@
             this.particleCountdownStarted = false;
             this.historyTriggered = false;
             this.started = false;
+            this.panelEl = document.querySelector('.epoch-panel');
+            this.panelStorageKey = 'epoch_panel_disabled';
         }
 
         init() {
+            this.applyPanelPreference();
+            this.bindPanelControls();
             this.updateStaticCopy();
             this.updateCountdown();
             this.countdownInterval = setInterval(() => this.updateCountdown(), 1000);
@@ -361,6 +518,7 @@
                 this.featureCanvas.resize();
             });
             document.addEventListener('epoch:fireworks-start', () => this.handleStart());
+            document.addEventListener('epoch:auto-special', () => this.handleAutoSpecial());
         }
 
         handleStart() {
@@ -417,6 +575,44 @@
                 this.historyTriggered = true;
                 this.featureCanvas.playHistorySequence();
             }
+        }
+
+        handleAutoSpecial() {
+            if (!this.started) return;
+            this.featureCanvas.playAutoSpecialBurst();
+        }
+
+        applyPanelPreference() {
+            if (!this.panelEl) return;
+            try {
+                if (localStorage.getItem(this.panelStorageKey) === '1') {
+                    this.panelEl.classList.add('epoch-panel--hidden');
+                }
+            } catch (err) {
+                console.warn('Epoch panel preference unavailable', err);
+            }
+        }
+
+        bindPanelControls() {
+            if (!this.panelEl) return;
+            const closeBtn = document.getElementById('epoch-panel-close');
+            const disableBtn = document.getElementById('epoch-panel-toggle');
+            closeBtn && closeBtn.addEventListener('click', () => this.hidePanel());
+            disableBtn && disableBtn.addEventListener('click', () => this.disablePanel());
+        }
+
+        hidePanel() {
+            if (!this.panelEl) return;
+            this.panelEl.classList.add('epoch-panel--hidden');
+        }
+
+        disablePanel() {
+            try {
+                localStorage.setItem(this.panelStorageKey, '1');
+            } catch (err) {
+                console.warn('Failed to persist epoch panel preference', err);
+            }
+            this.hidePanel();
         }
     }
 

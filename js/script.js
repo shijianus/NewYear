@@ -319,7 +319,7 @@ const helpContent = {
 	},
 	autoLaunch: {
 		header: '自动发射',
-		body: '启用此选项即可自动启动烟花序列，取消勾选你就可以手动控制烟花的发射'
+		body: '启用此选项即可自动启动烟花序列，并在序列轮询数次后自动点亮“AI”“灵蛇”“2026”等特殊粒子阵列，取消勾选你就可以手动控制烟花的发射'
 	},
 	finaleMode: {
 		header: '结局模式',
@@ -1068,16 +1068,21 @@ const sequences = [
 let isFirstSeq = true;
 const finaleCount = 32;
 let currentFinaleCount = 0;
-function startSequence() {
+function startSequence(fromAuto = false) {
+	const finalize = (delay) => {
+		registerAutoSequence(fromAuto);
+		return delay;
+	};
+	
 	if (isFirstSeq) {
 		isFirstSeq = false;
 		if (IS_HEADER) {
-			return seqTwoRandom();
+			return finalize(seqTwoRandom());
 		}
 		else {
 			const shell = new Shell(crysanthemumShell(shellSizeSelector()));
 			shell.launch(0.5, 0.5);
-			return 2400;
+			return finalize(2400);
 		}
 	}
 	
@@ -1085,33 +1090,34 @@ function startSequence() {
 		seqRandomFastShell();
 		if (currentFinaleCount < finaleCount) {
 			currentFinaleCount++;
-			return 170;
+			return finalize(170);
 		}
 		else {
 			currentFinaleCount = 0;
-			return 6000;
+			return finalize(6000);
 		}
 	}
 	
 	const rand = Math.random();
+	let delay;
 	
 	if (rand < 0.08 && Date.now() - seqSmallBarrage.lastCalled > seqSmallBarrage.cooldown) {
-		return seqSmallBarrage();
+		delay = seqSmallBarrage();
 	}
-	
-	if (rand < 0.1) {
-		return seqPyramid();
+	else if (rand < 0.1) {
+		delay = seqPyramid();
 	}
-	
-	if (rand < 0.6 && !IS_HEADER) {
-		return seqRandomShell();
+	else if (rand < 0.6 && !IS_HEADER) {
+		delay = seqRandomShell();
 	}
 	else if (rand < 0.8) {
-		return seqTwoRandom();
+		delay = seqTwoRandom();
 	}
-	else if (rand < 1) {
-		return seqTriple();
+	else {
+		delay = seqTriple();
 	}
+	
+	return finalize(delay);
 }
 
 
@@ -1208,6 +1214,26 @@ window.addEventListener('resize', handleResize);
 let currentFrame = 0;
 let speedBarOpacity = 0;
 let autoLaunchTime = 0;
+const AUTO_SPECIAL_THRESHOLD = 5;
+let autoSequenceSinceSpecial = 0;
+
+function notifyAutoSpecialBurst() {
+	if (typeof document === 'undefined') return;
+	document.dispatchEvent(new CustomEvent('epoch:auto-special', {
+		detail: {
+			origin: 'autoLaunch'
+		}
+	}));
+}
+
+function registerAutoSequence(fromAuto) {
+	if (!fromAuto) return;
+	autoSequenceSinceSpecial++;
+	if (autoSequenceSinceSpecial >= AUTO_SPECIAL_THRESHOLD) {
+		autoSequenceSinceSpecial = 0;
+		notifyAutoSpecialBurst();
+	}
+}
 
 function updateSpeedFromEvent(event) {
 	if (isUpdatingSpeed || event.y >= mainStage.height - 44) {
@@ -1241,7 +1267,8 @@ function updateGlobals(timeStep, lag) {
 	if (store.state.config.autoLaunch) {
 		autoLaunchTime -= timeStep;
 		if (autoLaunchTime <= 0) {
-			autoLaunchTime = startSequence() * 1.25;
+			const nextDelay = startSequence(true);
+			autoLaunchTime = nextDelay * 1.25;
 		}
 	}
 }

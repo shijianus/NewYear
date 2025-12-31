@@ -602,6 +602,34 @@
             line-height: 1.4;
         }
 
+        .epoch-panel__dismiss {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.55);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .epoch-panel__toggle {
+            margin-top: 12px;
+            background: transparent;
+            border: 1px dashed rgba(255, 255, 255, 0.35);
+            border-radius: 999px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            cursor: pointer;
+        }
+
+        .epoch-panel--hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
         @media (max-width: 640px) {
             .epoch-panel {
                 width: calc(100vw - 32px);
@@ -645,7 +673,8 @@
     <canvas id="meteor-canvas" class="epoch-layer"></canvas>
     <canvas id="feature-canvas" class="epoch-layer"></canvas>
 
-    <section class="epoch-panel">
+    <section class="epoch-panel" id="epoch-panel">
+        <button class="epoch-panel__dismiss" id="epoch-panel-close" type="button" aria-label="关闭星历面板">×</button>
         <div class="epoch-panel__header">
             <p class="epoch-panel__tag">Project Epoch · Main Hall</p>
             <h1 id="epoch-title">2026，很高兴遇见你</h1>
@@ -659,6 +688,7 @@
         <div class="epoch-panel__footer" id="epoch-footer">
             愿去年的遗憾，都是今年惊喜的铺垫。
         </div>
+        <button class="epoch-panel__toggle" id="epoch-panel-toggle" type="button">不再弹出</button>
     </section>
 
     <div id="yhBtn" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#fff ; font-size:15px;cursor:pointer;transition:opacity 0.3s ease;-webkit-tap-highlight-color:transparent;">

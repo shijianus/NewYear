@@ -1,0 +1,190 @@
+{
+	"camera" : 
+	{
+		"center" : "0.00000 0.00000 -1.00000",
+		"eye" : "0.00000 0.00000 0.00000",
+		"up" : "0.00000 1.00000 0.00000"
+	},
+	"general" : 
+	{
+		"ambientcolor" : "0.00000 0.00000 0.00000",
+		"bloom" : false,
+		"bloomhdrfeather" : 0.1,
+		"bloomhdriterations" : 8,
+		"bloomhdrscatter" : 1.619,
+		"bloomhdrstrength" : 2.0,
+		"bloomhdrthreshold" : 1.0,
+		"bloomstrength" : 1.9,
+		"bloomthreshold" : 0.64999998,
+		"bloomtint" : "1.00000 1.00000 1.00000",
+		"camerafade" : true,
+		"cameraparallax" : false,
+		"cameraparallaxamount" : 0.2,
+		"cameraparallaxdelay" : 1.6,
+		"cameraparallaxmouseinfluence" : 0.30000001,
+		"camerapreview" : true,
+		"camerashake" : false,
+		"camerashakeamplitude" : 0.5,
+		"camerashakeroughness" : 1.0,
+		"camerashakespeed" : 1.09,
+		"clearcolor" : "0.00000 0.00000 0.00000",
+		"clearenabled" : true,
+		"farz" : 10000.0,
+		"fov" : 50.0,
+		"gravitydirection" : "0.00000 -1.00000 0.00000",
+		"gravitystrength" : 1.0,
+		"hdr" : false,
+		"nearz" : 0.0099999998,
+		"orthogonalprojection" : 
+		{
+			"height" : 2160,
+			"width" : 3840
+		},
+		"perspectiveoverridefov" : 95.0,
+		"skylightcolor" : "0.30000 0.30000 0.30000",
+		"winddirection" : "0.70700 0.70700 0.00000",
+		"windenabled" : false,
+		"windstrength" : 1.0,
+		"zoom" : 1.0
+	},
+	"objects" : 
+	[
+		{
+			"castshadow" : false,
+			"id" : 145,
+			"image" : "models/背景.json",
+			"name" : "背景",
+			"origin" : "1920.00000 1080.00000 0.00000",
+			"parallaxDepth" : "1.68000 1.68000",
+			"scale" : "2.00000 2.00000 1.00000",
+			"size" : "1920.00000 1080.00000"
+		},
+		{
+			"angles" : "0.00000 -0.00000 0.00000",
+			"castshadow" : false,
+			"effects" : 
+			[
+				{
+					"file" : "effects/waterwaves/effect.json",
+					"id" : 4053,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"combos" : 
+							{
+								"DUALWAVES" : 1
+							},
+							"constantshadervalues" : 
+							{
+								"direction" : 1.6406095,
+								"direction2" : 3.1046066,
+								"exponent" : 1.2,
+								"exponent2" : 1.1,
+								"offset2" : 0,
+								"scale" : 25,
+								"scale2" : 15.6,
+								"speed" : 1,
+								"speed2" : 1,
+								"strength" : 0.37
+							},
+							"id" : 4054,
+							"textures" : [ null, "masks/waterwaves_mask_83a36ac9" ]
+						}
+					],
+					"visible" : true
+				},
+				{
+					"file" : "effects/waterripple/effect.json",
+					"id" : 4056,
+					"name" : "",
+					"passes" : 
+					[
+						{
+							"constantshadervalues" : 
+							{
+								"animationspeed" : 0.11,
+								"ratio" : 1.04,
+								"ripplestrength" : 0.07,
+								"scale" : 1.5599999,
+								"scrolldirection" : 0,
+								"scrollspeed" : 0
+							},
+							"id" : 4057,
+							"textures" : [ null, "masks/waterripple_mask_0f96b5dd", "effects/waterripplenormal" ]
+						}
+					],
+					"visible" : true
+				}
+			],
+			"id" : 3256,
+			"image" : "models/湖面.json",
+			"name" : "湖面",
+			"origin" : "1916.25049 277.93985 0.00000",
+			"size" : "3840.00000 555.00000"
+		},
+		{
+			"angles" : "0.00000 -0.00000 0.07255",
+			"id" : 268,
+			"instanceoverride" : 
+			{
+				"count" : 0.80000001,
+				"id" : 0,
+				"rate" : 1.2
+			},
+			"name" : "Twinkling shooting star",
+			"origin" : "230.30066 368.85071 0.00000",
+			"parallaxDepth" : "0.00000 0.00000",
+			"parent" : 145,
+			"particle" : "particles/workshop/2914579837/deku_twinkle_shootingstar.json",
+			"scale" : "-0.47896 0.47896 1.00000",
+			"visible" : true
+		},
+		{
+			"angles" : "0.00000 -0.00000 3.11935",
+			"id" : 225,
+			"instanceoverride" : 
+			{
+				"id" : 227,
+				"size" : 1.72
+			},
+			"name" : "Stars",
+			"origin" : "1.71399 -109.80759 0.00000",
+			"parallaxDepth" : "0.00000 0.00000",
+			"parent" : 145,
+			"particle" : "particles/workshop/2097513175/Stars.json",
+			"scale" : "0.53863 0.41217 1.00000",
+			"visible" : true
+		},
+		{
+			"angles" : "0.00000 -0.00000 0.00000",
+			"id" : 794,
+			"instanceoverride" : 
+			{
+				"count" : 2.0,
+				"id" : 796
+			},
+			"name" : "Stars",
+			"origin" : "-2.40002 105.64508 0.00000",
+			"parent" : 145,
+			"particle" : "particles/workshop/2097513175/Stars.json",
+			"scale" : "0.99251 0.94655 1.00000",
+			"visible" : true
+		},
+		{
+			"angles" : "0.00000 -0.00000 0.00000",
+			"id" : 200,
+			"instanceoverride" : 
+			{
+				"id" : 0
+			},
+			"name" : "Stars",
+			"origin" : "-48.36340 -48.38376 0.00000",
+			"parallaxDepth" : "0.00000 0.00000",
+			"parent" : 145,
+			"particle" : "particles/workshop/2097513175/Stars.json",
+			"scale" : "0.53863 0.55397 1.00000",
+			"visible" : true
+		}
+	]
+}

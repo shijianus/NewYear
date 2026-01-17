@@ -24,6 +24,15 @@
   Content-Type: image/png
   Cache-Control: public, max-age=31536000, immutable
 
+# 壁纸资源
+/wallpaper/**/*.png
+  Content-Type: image/png
+  Cache-Control: public, max-age=31536000, immutable
+
+/wallpaper/**/*.jpg
+  Content-Type: image/jpeg
+  Cache-Control: public, max-age=31536000, immutable
+
 # HTML 文件
 /*.html
   Cache-Control: public, max-age=0, must-revalidate

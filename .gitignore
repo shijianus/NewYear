@@ -30,3 +30,23 @@ index.old.backup.html
 # deploy-simple.sh
 # start.sh
 
+# Large wallpaper files - exclude from git but keep locally
+wallpaper/scene.pkg
+wallpaper/preview.gif
+wallpaper/shaders/
+wallpaper/output/fonts/
+wallpaper/output/particles/
+wallpaper/output/sounds/
+wallpaper/output/models/
+wallpaper/output/effects/
+wallpaper/output/materials/masks/
+wallpaper/output/materials/particle/
+wallpaper/output/materials/presets/
+wallpaper/output/materials/workshop/
+wallpaper/output/materials/*.tex
+wallpaper/output/materials/*.tex-json
+
+# Large audio files (optional)
+# assets/audio/bgm_solar.mp3
+# assets/audio/countdown_heartbeat.mp3
+
